@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   LegalTrack – Warm Minimal Design System
+   LegalTrack – Warm Elevated Design System
    ═══════════════════════════════════════════════
    Key visual sections:
      1. Base typography      → warmth + readability
@@ -7,6 +7,8 @@
      3. Table styling        → refined data display
      4. Scrollbar            → minimal warm
      5. Micro-interactions   → premium feel
+     6. Elevation system     → subtle depth
+     7. Weekly Calendar      → structured deadline view
    ═══════════════════════════════════════════════ */
 
 /* ─── 1. BASE TYPOGRAPHY (overall warmth & readability) ─── */
@@ -21,12 +23,12 @@ body {
 }
 
 ::selection {
-  background: #ddd5c8;
-  color: #302b26;
+  background: #e8e3db;
+  color: #252220;
 }
 
 ::placeholder {
-  color: #c0bab0 !important;
+  color: #b8b2a8 !important;
   opacity: 1;
 }
 
@@ -36,16 +38,16 @@ button, a, input, select, textarea {
 }
 
 input:focus, select:focus, textarea:focus {
-  box-shadow: 0 0 0 3px rgba(164, 155, 143, 0.18) !important;
-  border-color: #c0bab0 !important;
+  box-shadow: 0 0 0 3px rgba(164, 155, 143, 0.15), 0 1px 3px rgba(48,43,38,0.04) !important;
+  border-color: #b8b2a8 !important;
 }
 
 input[type="checkbox"] {
-  accent-color: #685f54;
+  accent-color: #5c554e;
   cursor: pointer;
 }
 
-/* ─── 3. TABLE STYLING (refined data display) ─── */
+/* ─── 3. TABLE STYLING (refined data display with elevation) ─── */
 table {
   border-collapse: separate;
   border-spacing: 0;
@@ -53,17 +55,22 @@ table {
 
 table thead th {
   letter-spacing: 0.06em;
-  font-weight: 500;
+  font-weight: 600;
+  color: #5c554e;
 }
 
 table tbody tr {
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+table tbody tr:hover {
+  box-shadow: 0 1px 4px -1px rgba(48,43,38,0.06);
 }
 
 /* ─── 4. SCROLLBAR (minimal warm) ─── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #d0c8bc; border-radius: 100px; }
+::-webkit-scrollbar-thumb { background: #d4cdc2; border-radius: 100px; }
 ::-webkit-scrollbar-thumb:hover { background: #a49b8f; }
 
 /* ─── 5. MICRO-INTERACTIONS (premium tactile feel) ─── */
@@ -80,15 +87,17 @@ input, select, textarea, button {
   font-family: inherit;
 }
 
-/* ─── 6. CARD & PANEL INTERACTIONS (hover lift, focus) ─── */
+/* ─── 6. ELEVATION SYSTEM (subtle depth for surfaces) ─── */
+
+/* Card base — resting state with gentle lift */
 .card-hover {
+  box-shadow: 0 1px 3px 0 rgba(48,43,38,0.04), 0 1px 2px -1px rgba(48,43,38,0.03);
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
               box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(48, 43, 38, 0.08),
-              0 2px 8px -2px rgba(48, 43, 38, 0.04);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -3px rgba(48,43,38,0.08), 0 2px 6px -2px rgba(48,43,38,0.05);
 }
 
 /* Stat card number styling */
@@ -107,13 +116,66 @@ input, select, textarea, button {
 /* Priority left-border indicator for deadline items */
 .dl-indicator {
   border-left: 3px solid transparent;
+  box-shadow: 0 1px 2px 0 rgba(48,43,38,0.03);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .dl-indicator:hover {
   transform: translateX(2px);
+  box-shadow: 0 2px 8px -2px rgba(48,43,38,0.08);
 }
-.dl-high    { border-left-color: #e11d48; }
+.dl-high    { border-left-color: #dc2626; }
 .dl-medium  { border-left-color: #d97706; }
-.dl-low     { border-left-color: #0284c7; }
+.dl-low     { border-left-color: #6b9ac4; }
 .dl-default { border-left-color: #a49b8f; }
+
+/* ─── 7. WEEKLY CALENDAR (structured deadline view) ─── */
+
+/* Day columns — subtle separator & vertical rhythm */
+.cal-day-columns {
+  background:
+    repeating-linear-gradient(
+      to right,
+      transparent,
+      transparent calc(14.2857% - 1px),
+      #edebe6 calc(14.2857% - 1px),
+      #edebe6 14.2857%
+    );
+}
+
+.cal-day-column {
+  position: relative;
+}
+
+/* Today column highlight */
+.cal-today-col {
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.06) 0%, rgba(251, 191, 36, 0.02) 100%);
+  box-shadow: inset 0 3px 0 0 #f59e0b;
+}
+
+/* Deadline card — hover lift with elevation */
+.cal-deadline-card {
+  box-shadow: 0 1px 2px 0 rgba(48,43,38,0.04);
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.15s ease;
+}
+.cal-deadline-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(48,43,38,0.08), 0 2px 4px -2px rgba(48,43,38,0.04);
+}
+
+/* Empty column hint — visible on hover */
+.cal-empty-hint {
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+.cal-day-column:hover .cal-empty-hint {
+  opacity: 1;
+}
+
+/* Week grid — prevent text overflow in narrow columns */
+.cal-week-grid {
+  min-width: 0;
+  box-shadow: 0 1px 3px 0 rgba(48,43,38,0.04), 0 1px 2px -1px rgba(48,43,38,0.03);
+}
 
