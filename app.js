@@ -25,6 +25,7 @@ const T = {
     documents:"Documents", uploadDoc:"Upload Document", noDocuments:"No documents uploaded yet.",
     uploadedOn:"Uploaded", fileSize:"Size", download:"Download", confirmDel:"Delete this document?",
     saveSummary:"Save Summary", summarySaved:"✓ Saved",
+    currentDL:"Current", completedDL:"Completed",
     areas:["Litigation","Corporate","Family","Criminal","Real Estate","IP","Employment","Other"],
     statuses:["Active","Pending","Closed","On Hold"],
     priorities:["High","Medium","Low"],
@@ -52,6 +53,7 @@ const T = {
     documents:"Documentos", uploadDoc:"Subir Documento", noDocuments:"No hay documentos subidos aún.",
     uploadedOn:"Subido", fileSize:"Tamaño", download:"Descargar", confirmDel:"¿Eliminar este documento?",
     saveSummary:"Guardar Resumen", summarySaved:"✓ Guardado",
+    currentDL:"Activos", completedDL:"Completados",
     areas:["Litigios","Corporativo","Familia","Penal","Bienes Raíces","PI","Laboral","Otro"],
     statuses:["Activo","Pendiente","Cerrado","En Espera"],
     priorities:["Alta","Media","Baja"],
@@ -69,6 +71,16 @@ const BADGE_COLORS = {
 };
 
 const fmt = n => isNaN(n) ? "0" : Number(n).toLocaleString();
+
+const statusBg = s => {
+  const m = {
+    Active:"bg-emerald-50 text-emerald-700", Activo:"bg-emerald-50 text-emerald-700",
+    Pending:"bg-amber-50 text-amber-700", Pendiente:"bg-amber-50 text-amber-700",
+    Closed:"bg-stone-100 text-stone-500", Cerrado:"bg-stone-100 text-stone-500",
+    "On Hold":"bg-orange-50 text-orange-600", "En Espera":"bg-orange-50 text-orange-600",
+  };
+  return m[s] || "bg-stone-50 text-stone-500";
+};
 const fmtSize = b => b < 1024 ? b+"B" : b < 1048576 ? (b/1024).toFixed(1)+"KB" : (b/1048576).toFixed(1)+"MB";
 
 const Badge = ({label}) => <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${BADGE_COLORS[label]||"bg-stone-100 text-stone-500 ring-1 ring-stone-200"}`}>{label}</span>;
@@ -488,7 +500,7 @@ function CasesTab({ cases, setCases, deadlines, setDeadlines, timeLogs, t }) {
         <table className="w-full text-sm">
           <thead><tr className="text-left text-stone-400 border-b border-stone-100">
             {[t.matterName,t.client,t.area,t.attorney,t.status,t.opened,""].map(h=>(
-              <th key={h} className="px-3 py-3 font-medium text-xs uppercase tracking-wider whitespace-nowrap">{h}</th>
+              <th key={h} className="px-3 py-3 font-medium text-xs uppercase tracking-wider">{h}</th>
             ))}
           </tr></thead>
           <tbody>
@@ -504,11 +516,11 @@ function CasesTab({ cases, setCases, deadlines, setDeadlines, timeLogs, t }) {
                 <td className="px-3 py-3 text-stone-500">{c.attorney}</td>
                 <td className="px-3 py-3">
                   <select value={c.status} onChange={e=>quickStatus(c.id, e.target.value)}
-                    className="text-xs font-medium rounded-full px-2 py-0.5 border-0 bg-transparent cursor-pointer focus:outline-none focus:ring-1 focus:ring-slate-300">
+                    className={`text-xs font-medium rounded-full px-2.5 py-0.5 border-0 cursor-pointer focus:outline-none focus:ring-1 focus:ring-slate-300 ${statusBg(c.status)}`}>
                     {t.statuses.map(s=><option key={s} value={s}>{s}</option>)}
                   </select>
                 </td>
-                <td className="px-3 py-3 whitespace-nowrap text-stone-400">{c.opened}</td>
+                <td className="px-3 py-3 whitespace-nowrap text-stone-400 font-num">{c.opened}</td>
                 <td className="px-3 py-3">
                   <div className="flex gap-1">
                     <Btn variant="secondary" small onClick={()=>openEdit(c)}>✎</Btn>
@@ -575,11 +587,11 @@ function TimeLogTab({ timeLogs, setTimeLogs, cases, t }) {
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-4 mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
         {[[t.totalHrs,totalHours.toFixed(1)+" hrs"],[t.unbilledVal,"$"+fmt(totalValue)],["Unbilled","$"+fmt(unbilled)]].map(([label,val])=>(
           <div key={label} className="bg-stone-50 border border-stone-100 rounded-2xl p-5 text-center">
             <div className="text-xs text-stone-400 font-medium uppercase tracking-wider mb-2">{label}</div>
-            <div className="text-2xl font-bold font-serif text-slate-800">{val}</div>
+            <div className="text-2xl font-bold font-num text-slate-800">{val}</div>
           </div>
         ))}
       </div>
@@ -597,23 +609,27 @@ function TimeLogTab({ timeLogs, setTimeLogs, cases, t }) {
         <table className="w-full text-sm">
           <thead><tr className="text-left text-stone-400 border-b border-stone-100">
             {[t.date,t.matter,t.attorney,t.task,t.hours,t.rate,t.value,t.billed,""].map(h=>(
-              <th key={h} className="px-3 py-3 font-medium text-xs uppercase tracking-wider whitespace-nowrap">{h}</th>
+              <th key={h} className="px-3 py-3 font-medium text-xs uppercase tracking-wider">{h}</th>
             ))}
           </tr></thead>
           <tbody>
             {filtered.length===0&&<tr><td colSpan={9} className="text-center py-12 text-stone-300 italic">{timeLogs.length===0?"No time entries yet — log your first entry.":t.noEntries}</td></tr>}
             {filtered.map(l=>(
               <tr key={l.id} className="border-b border-stone-50 hover:bg-stone-50/50 transition-colors">
-                <td className="px-3 py-3 whitespace-nowrap text-stone-500">{l.date}</td>
+                <td className="px-3 py-3 whitespace-nowrap text-stone-500 font-num">{l.date}</td>
                 <td className="px-3 py-3 text-slate-700 font-medium">{l.matter}</td>
                 <td className="px-3 py-3 text-stone-500">{l.attorney}</td>
-                <td className="px-3 py-3 text-stone-600">{l.task}</td>
-                <td className="px-3 py-3 text-stone-600">{l.hours}</td>
-                <td className="px-3 py-3 text-stone-400">${l.rate}/hr</td>
-                <td className="px-3 py-3 font-medium text-slate-700">${fmt(l.hours*l.rate)}</td>
+                <td className="px-3 py-3 text-stone-600 min-w-0">{l.task}</td>
+                <td className="px-3 py-3 text-stone-600 font-num num">{l.hours}</td>
+                <td className="px-3 py-3 text-stone-400 font-num num whitespace-nowrap">${l.rate}/hr</td>
+                <td className="px-3 py-3 font-semibold text-slate-700 font-num num whitespace-nowrap">${fmt(l.hours*l.rate)}</td>
                 <td className="px-3 py-3">
-                  <button onClick={()=>setTimeLogs(p=>p.map(x=>x.id===l.id?{...x,billed:!x.billed}:x))}
-                    className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors ${l.billed?"bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200":"bg-stone-100 text-stone-400 ring-1 ring-stone-200"}`}>
+                  <button onClick={()=>{
+                    const action = l.billed ? `mark as ${t.unbilled.toLowerCase()}` : `mark as ${t.billed.toLowerCase()}`;
+                    if (!window.confirm(`Are you sure you want to ${action} this entry?`)) return;
+                    setTimeLogs(p=>p.map(x=>x.id===l.id?{...x,billed:!x.billed}:x));
+                  }}
+                    className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${l.billed?"bg-teal-50 text-teal-700 ring-1 ring-teal-200":"bg-amber-50 text-amber-700 ring-1 ring-amber-200"}`}>
                     {l.billed?"✓ "+t.billed:t.unbilled}
                   </button>
                 </td>
@@ -655,6 +671,7 @@ function TimeLogTab({ timeLogs, setTimeLogs, cases, t }) {
 // ── DEADLINES TAB ──
 function DeadlinesTab({ deadlines, setDeadlines, cases, t }) {
   const [showForm, setShowForm] = useState(false);
+  const [dlView, setDlView] = useState("current"); // "current" or "completed"
   const empty = { matter:"", description:"", date:"", priority:t.priorities[0], done:false };
   const [form, setForm] = useState(empty);
   const today = new Date().toISOString().slice(0,10);
@@ -664,35 +681,67 @@ function DeadlinesTab({ deadlines, setDeadlines, cases, t }) {
     setDeadlines(p=>[...p,{...form,id:Date.now()}]);
     setShowForm(false); setForm(empty);
   };
+
+  const currentDL = deadlines.filter(d => !d.done);
+  const doneDL = deadlines.filter(d => d.done);
+
+  const renderItem = d => {
+    const dv=diff(d.date), overdue=dv<0&&!d.done, soon=dv>=0&&dv<=7&&!d.done;
+    const statusLabel = d.done ? t.done : overdue ? Math.abs(dv)+t.overdue : dv===0 ? t.today : dv+t.left;
+    return (
+      <div key={d.id} className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 rounded-xl border transition-colors ${d.done?"bg-stone-50 border-stone-100":overdue?"bg-rose-50/50 border-rose-200/50":soon?"bg-amber-50/50 border-amber-200/50":"bg-white border-stone-200/60"}`}>
+        <input type="checkbox" checked={d.done} onChange={()=>setDeadlines(p=>p.map(x=>x.id===d.id?{...x,done:!x.done}:x))} className="w-4 h-4 accent-slate-700 cursor-pointer shrink-0"/>
+        <div className="flex-1 min-w-0">
+          <div className={`font-medium text-sm ${d.done?"line-through text-stone-400":"text-slate-700"}`}>{d.description}</div>
+          <div className="text-xs text-stone-400 mt-0.5">{d.matter}</div>
+        </div>
+        <Badge label={d.priority}/>
+        <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-0.5 ml-0 sm:ml-4 min-w-[120px]">
+          <div className="text-[10px] text-stone-400 uppercase tracking-wider font-medium">{t.dueDate}</div>
+          <div className="text-sm font-semibold font-num text-slate-600">{d.date}</div>
+        </div>
+        <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-0.5 min-w-[80px]">
+          <div className="text-[10px] text-stone-400 uppercase tracking-wider font-medium">{t.status}</div>
+          <div className={`text-xs font-semibold font-num ${overdue?"text-rose-500":soon?"text-amber-500":d.done?"text-stone-400":"text-stone-400"}`}>
+            {statusLabel}
+          </div>
+        </div>
+        <Btn variant="danger" small onClick={()=>setDeadlines(p=>p.filter(x=>x.id!==d.id))}>✕</Btn>
+      </div>
+    );
+  };
+
+  const activeList = dlView === "current" ? currentDL : doneDL;
+  const sorted = dlView === "current"
+    ? [...activeList].sort((a,b)=>a.date.localeCompare(b.date))
+    : [...activeList].sort((a,b)=>b.date.localeCompare(a.date));
+
   return (
     <div>
-      <div className="flex justify-end gap-2 mb-3">
-        <Btn variant="secondary" onClick={()=>downloadCSV("deadlines.csv",deadlines,["matter","description","date","priority","done"])}>{t.exportCSV}</Btn>
-        <Btn onClick={()=>setShowForm(true)}>{t.addDeadline}</Btn>
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        {/* Toggle tabs */}
+        <div className="flex bg-stone-100/60 rounded-lg p-1 gap-0.5">
+          <button onClick={()=>setDlView("current")}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${dlView==="current"?"bg-white text-slate-800 shadow-sm":"text-stone-400 hover:text-stone-600"}`}>
+            {t.currentDL} <span className="font-num ml-1 text-xs">({currentDL.length})</span>
+          </button>
+          <button onClick={()=>setDlView("completed")}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${dlView==="completed"?"bg-white text-slate-800 shadow-sm":"text-stone-400 hover:text-stone-600"}`}>
+            {t.completedDL} <span className="font-num ml-1 text-xs">({doneDL.length})</span>
+          </button>
+        </div>
+        <div className="ml-auto flex gap-2">
+          <Btn variant="secondary" onClick={()=>downloadCSV("deadlines.csv",deadlines,["matter","description","date","priority","done"])}>{t.exportCSV}</Btn>
+          <Btn onClick={()=>setShowForm(true)}>{t.addDeadline}</Btn>
+        </div>
       </div>
-      <div className="space-y-2.5">
-        {deadlines.length===0 && <div className="text-stone-300 text-sm italic py-12 text-center border-2 border-dashed border-stone-100 rounded-xl">No deadlines yet — add your first deadline to stay on track.</div>}
-        {[...deadlines].sort((a,b)=>a.date.localeCompare(b.date)).map(d=>{
-          const dv=diff(d.date), overdue=dv<0&&!d.done, soon=dv>=0&&dv<=7&&!d.done;
-          return (
-            <div key={d.id} className={`flex items-center gap-3 p-3.5 rounded-xl border transition-colors ${d.done?"bg-stone-50 opacity-60 border-stone-100":overdue?"bg-rose-50/50 border-rose-200/50":soon?"bg-amber-50/50 border-amber-200/50":"bg-white border-stone-200/60"}`}>
-              <input type="checkbox" checked={d.done} onChange={()=>setDeadlines(p=>p.map(x=>x.id===d.id?{...x,done:!x.done}:x))} className="w-4 h-4 accent-slate-700 cursor-pointer"/>
-              <div className="flex-1 min-w-0">
-                <div className={`font-medium text-sm ${d.done?"line-through text-stone-400":"text-slate-700"}`}>{d.description}</div>
-                <div className="text-xs text-stone-400 mt-0.5">{d.matter}</div>
-              </div>
-              <Badge label={d.priority}/>
-              <div className="text-right min-w-fit">
-                <div className="text-sm font-semibold text-slate-600">{d.date}</div>
-                <div className={`text-xs ${overdue?"text-rose-500 font-bold":soon?"text-amber-500 font-semibold":"text-stone-400"}`}>
-                  {d.done?t.done:overdue?Math.abs(dv)+t.overdue:dv===0?t.today:dv+t.left}
-                </div>
-              </div>
-              <Btn variant="danger" small onClick={()=>setDeadlines(p=>p.filter(x=>x.id!==d.id))}>✕</Btn>
-            </div>
-          );
-        })}
-      </div>
+
+      {sorted.length === 0
+        ? <div className="text-stone-300 text-sm italic py-12 text-center border-2 border-dashed border-stone-100 rounded-xl">
+            {dlView === "current" ? "No active deadlines — add your first deadline to stay on track." : "No completed deadlines yet."}
+          </div>
+        : <div className="space-y-2.5">{sorted.map(renderItem)}</div>
+      }
       {showForm&&(
         <Modal title={t.addDLTitle} onClose={()=>setShowForm(false)}>
           <div className="grid grid-cols-2 gap-4">
@@ -740,82 +789,85 @@ function DashboardTab({ cases, timeLogs, deadlines, t }) {
         ].map(([label,val,tc,bg])=>(
           <div key={label} className={`${bg} border rounded-2xl p-6 text-center card-hover`}>
             <div className="text-[10px] font-semibold text-stone-400 uppercase tracking-widest mb-3">{label}</div>
-            <div className={`text-4xl font-bold font-serif stat-value ${tc}`}>{val}</div>
+            <div className={`text-4xl font-bold font-num stat-value ${tc}`}>{val}</div>
           </div>
         ))}
       </div>
 
-      {/* ── Upcoming Deadlines (hero section) ── */}
-      <div className="bg-white border border-stone-200/60 rounded-2xl shadow-sm shadow-stone-200/30 overflow-hidden">
-        <div className="px-6 pt-6 pb-4 flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-slate-800 text-sm">{t.upcomingDL}</h3>
-            <p className="text-xs text-stone-400 mt-0.5">{upcoming.length} upcoming · {overdue.length} overdue</p>
+      {/* ── Deadlines + Sidebar ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Left: Upcoming Deadlines (takes 3/5 width) */}
+        <div className="lg:col-span-3 bg-white border border-stone-200/60 rounded-2xl shadow-sm shadow-stone-200/30 overflow-hidden">
+          <div className="px-6 pt-6 pb-4 flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-slate-800 text-sm">{t.upcomingDL}</h3>
+              <p className="text-xs text-stone-400 mt-0.5"><span className="font-num">{upcoming.length}</span> upcoming · <span className="font-num">{overdue.length}</span> overdue</p>
+            </div>
           </div>
-        </div>
-        <div className="px-6 pb-6">
-          {upcoming.length===0 && <div className="text-stone-300 text-sm italic py-6 text-center">{t.noDL}</div>}
-          <div className="space-y-2">
-            {upcoming.map(d=>{
-              const dv=Math.ceil((new Date(d.date)-new Date(today))/86400000);
-              return (
-                <div key={d.id} className={`dl-indicator ${dlClass(d.priority)} flex items-center gap-4 py-3 px-4 rounded-xl bg-stone-50/40 hover:bg-stone-50`}>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm text-slate-700">{d.description}</div>
-                    <div className="text-xs text-stone-400 mt-0.5">{d.matter}</div>
-                  </div>
-                  <Badge label={d.priority}/>
-                  <div className="text-right shrink-0">
-                    <div className="text-sm font-medium text-slate-600">{d.date}</div>
-                    <div className={`text-xs font-semibold ${dv<=3?"text-rose-500":dv<=7?"text-amber-500":"text-stone-400"}`}>
-                      {dv===0?t.today:dv+"d "+t.left.replace("d ","")}
+          <div className="px-6 pb-6">
+            {upcoming.length===0 && <div className="text-stone-300 text-sm italic py-6 text-center">{t.noDL}</div>}
+            <div className="space-y-2">
+              {upcoming.map(d=>{
+                const dv=Math.ceil((new Date(d.date)-new Date(today))/86400000);
+                return (
+                  <div key={d.id} className={`dl-indicator ${dlClass(d.priority)} flex items-center gap-4 py-3 px-4 rounded-xl bg-stone-50/40 hover:bg-stone-50`}>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm text-slate-700">{d.description}</div>
+                      <div className="text-xs text-stone-400 mt-0.5">{d.matter}</div>
+                    </div>
+                    <Badge label={d.priority}/>
+                    <div className="text-right shrink-0">
+                      <div className="text-sm font-medium font-num text-slate-600">{d.date}</div>
+                      <div className={`text-xs font-semibold font-num ${dv<=3?"text-rose-500":dv<=7?"text-amber-500":"text-stone-400"}`}>
+                        {dv===0?t.today:dv+"d "+t.left.replace("d ","")}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Bottom row: By Area + Overdue ── */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div className="bg-white border border-stone-200/60 rounded-2xl p-6 shadow-sm shadow-stone-200/30 card-hover">
-          <h3 className="font-semibold text-stone-500 mb-5 text-xs uppercase tracking-widest">{t.byArea}</h3>
-          {Object.keys(byArea).length===0&&<div className="text-stone-300 text-sm italic py-4 text-center">{t.noMatters}</div>}
-          <div className="space-y-3.5">
-            {Object.entries(byArea).sort((a,b)=>b[1]-a[1]).map(([area,count])=>(
-              <div key={area} className="flex items-center gap-3">
-                <div className="text-sm text-slate-600 w-28 shrink-0">{area}</div>
-                <div className="flex-1 bg-stone-100 rounded-full h-2"><div className="bg-slate-500 h-2 rounded-full transition-all" style={{width:`${(count/cases.length)*100}%`}}/></div>
-                <div className="text-xs font-bold text-stone-500 w-5 text-right">{count}</div>
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {overdue.length>0 ? (
-          <div className="bg-rose-50/70 border border-rose-200/60 rounded-2xl p-6 card-hover">
-            <h3 className="font-semibold text-rose-600 mb-4 text-xs uppercase tracking-widest">{t.overdueHdr}</h3>
-            <div className="space-y-2.5">
-              {overdue.map(d=>(
-                <div key={d.id} className="flex justify-between items-center text-sm bg-white/60 rounded-lg px-3 py-2.5">
-                  <div>
-                    <span className="font-semibold text-rose-800">{d.description}</span>
-                    <span className="text-rose-400 ml-2 text-xs">— {d.matter}</span>
-                  </div>
-                  <span className="text-rose-500 font-bold text-xs whitespace-nowrap">{d.date}</span>
+        {/* Right: By Area + Overdue/All caught up (takes 2/5 width) */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="bg-white border border-stone-200/60 rounded-2xl p-6 shadow-sm shadow-stone-200/30 card-hover flex-1">
+            <h3 className="font-semibold text-stone-500 mb-5 text-xs uppercase tracking-widest">{t.byArea}</h3>
+            {Object.keys(byArea).length===0&&<div className="text-stone-300 text-sm italic py-4 text-center">{t.noMatters}</div>}
+            <div className="space-y-3.5">
+              {Object.entries(byArea).sort((a,b)=>b[1]-a[1]).map(([area,count])=>(
+                <div key={area} className="flex items-center gap-3">
+                  <div className="text-sm text-slate-600 w-28 shrink-0">{area}</div>
+                  <div className="flex-1 bg-stone-100 rounded-full h-2"><div className="bg-slate-500 h-2 rounded-full transition-all" style={{width:`${(count/cases.length)*100}%`}}/></div>
+                  <div className="text-xs font-bold text-stone-500 w-5 text-right">{count}</div>
                 </div>
               ))}
             </div>
           </div>
-        ) : (
-          <div className="bg-emerald-50/50 border border-emerald-200/40 rounded-2xl p-6 flex flex-col items-center justify-center card-hover">
-            <div className="text-3xl mb-2">✓</div>
-            <div className="text-sm font-medium text-emerald-700">All caught up</div>
-            <div className="text-xs text-emerald-500 mt-1">No overdue items</div>
-          </div>
-        )}
+
+          {overdue.length>0 ? (
+            <div className="bg-rose-50/70 border border-rose-200/60 rounded-2xl p-6 card-hover">
+              <h3 className="font-semibold text-rose-600 mb-4 text-xs uppercase tracking-widest">{t.overdueHdr}</h3>
+              <div className="space-y-2.5">
+                {overdue.map(d=>(
+                  <div key={d.id} className="flex justify-between items-center text-sm bg-white/60 rounded-lg px-3 py-2.5">
+                    <div>
+                      <span className="font-semibold text-rose-800">{d.description}</span>
+                      <span className="text-rose-400 ml-2 text-xs">— {d.matter}</span>
+                    </div>
+                    <span className="text-rose-500 font-bold text-xs whitespace-nowrap">{d.date}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-emerald-50/50 border border-emerald-200/40 rounded-2xl p-6 flex flex-col items-center justify-center card-hover">
+              <div className="text-3xl mb-2">✓</div>
+              <div className="text-sm font-medium text-emerald-700">All caught up</div>
+              <div className="text-xs text-emerald-500 mt-1">No overdue items</div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -866,11 +918,11 @@ function App() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <div className="bg-white border-b border-stone-200/60 px-8 py-4 flex items-center gap-5">
-        <div className="font-serif text-slate-800 text-xl tracking-tight">⚖ {t.appName}</div>
-        <div className="w-px h-6 bg-stone-200/80"></div>
-        <div className="text-stone-400 text-xs font-medium uppercase tracking-widest hidden sm:block">{t.appSub}</div>
-        <div className="ml-auto flex items-center gap-3">
+      <div className="bg-white border-b border-stone-200/60 px-4 sm:px-8 py-4 flex items-center gap-3 sm:gap-5">
+        <div className="font-serif text-slate-800 text-lg sm:text-xl tracking-tight shrink-0">⚖ {t.appName}</div>
+        <div className="w-px h-6 bg-stone-200/80 hidden sm:block"></div>
+        <div className="text-stone-400 text-xs font-medium uppercase tracking-widest hidden md:block">{t.appSub}</div>
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <Btn small onClick={()=>setTab(1)}>{t.newMatter}</Btn>
           <select value={lang} onChange={e=>switchLang(e.target.value)}
             className="border border-stone-200 rounded-lg px-2.5 py-1.5 text-sm font-medium text-stone-500 bg-white hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-slate-300 cursor-pointer transition-shadow">
@@ -878,7 +930,7 @@ function App() {
           </select>
         </div>
       </div>
-      <div className="max-w-5xl mx-auto px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
         <div className="flex gap-1 mb-8 bg-stone-100/60 rounded-xl p-1.5 w-fit flex-wrap">
           {t.tabs.map((label,i)=>(
             <button key={i} onClick={()=>setTab(i)}
@@ -887,7 +939,7 @@ function App() {
             </button>
           ))}
         </div>
-        <div className="bg-white rounded-2xl border border-stone-200/60 p-8 shadow-sm shadow-stone-200/40">
+        <div className="bg-white rounded-2xl border border-stone-200/60 p-4 sm:p-8 shadow-sm shadow-stone-200/40">
           {tab===0 && <DashboardTab cases={cases} timeLogs={timeLogs} deadlines={deadlines} t={t}/>}
           {tab===1 && <CasesTab cases={cases} setCases={setCases} deadlines={deadlines} setDeadlines={setDeadlines} timeLogs={timeLogs} t={t}/>}
           {tab===2 && <TimeLogTab timeLogs={timeLogs} setTimeLogs={setTimeLogs} cases={cases} t={t}/>}

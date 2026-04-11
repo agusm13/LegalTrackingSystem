@@ -91,9 +91,17 @@ input, select, textarea, button {
               0 2px 8px -2px rgba(48, 43, 38, 0.04);
 }
 
-/* Stat card number pulse on dashboard load */
+/* Stat card number styling */
 .stat-value {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.025em;
+}
+
+/* Numeric display — used for money, hours, counts in tables */
+.num {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "cv01" 1;
+  letter-spacing: -0.01em;
 }
 
 /* Priority left-border indicator for deadline items */
@@ -108,5 +116,4 @@ input, select, textarea, button {
 .dl-medium  { border-left-color: #d97706; }
 .dl-low     { border-left-color: #0284c7; }
 .dl-default { border-left-color: #a49b8f; }
-}
 
