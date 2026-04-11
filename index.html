@@ -4,14 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LegalTrack</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+          },
+          colors: {
+            stone: {
+              50: '#faf8f4', 100: '#f0ece5', 200: '#e4ded5', 300: '#d0c8bc',
+              400: '#a49b8f', 500: '#837a6e', 600: '#685f54', 700: '#4a433b',
+              800: '#302b26', 900: '#1b1815', 950: '#0f0d0b',
+            },
+            slate: {
+              50: '#f6f4f0', 100: '#ece9e3', 200: '#dad6cd', 300: '#c0bab0',
+              400: '#948d84', 500: '#766f66', 600: '#5c554e', 700: '#3e3832',
+              800: '#27231f', 900: '#151311', 950: '#0a0908',
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-stone-50 font-sans antialiased">
   <div id="root"></div>
+  <!-- AI service must load before app.js so summarizeNote/extractTasks are available globally -->
+  <script src="aiService.js"></script>
   <script type="text/babel" src="app.js"></script>
 </body>
 </html>
