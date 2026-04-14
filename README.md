@@ -1,6 +1,6 @@
 # ⚖ LegalTrack
 
-**A legal productivity system for attorneys and paralegals** — manage cases, log billable time, track deadlines, and store documents, all in a single browser-based application with no backend required.
+**A legal productivity system for attorneys and paralegals** GOAL: manage cases, log billable time, track deadlines, and store documents, all in a single browser-based application with no backend required.
 
 ---
 
